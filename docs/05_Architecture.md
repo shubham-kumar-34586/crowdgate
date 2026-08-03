@@ -12,7 +12,10 @@ Client
 Frontend (React)
     │
     ▼
-Express App
+Express Application
+    │
+    ▼
+Global Middleware
     │
     ▼
 Routes
@@ -21,13 +24,16 @@ Routes
 Controllers
     │
     ▼
-Services (Coming Soon)
+Services (Upcoming)
     │
     ▼
-Repositories (Coming Soon)
+Repositories (Upcoming)
     │
     ▼
 PostgreSQL
+    │
+    ▼
+Response
 
 ```
 

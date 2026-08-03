@@ -7,4 +7,5 @@ const getHealth = (req, res) => {
     });
 };
 
+
 export default getHealth;

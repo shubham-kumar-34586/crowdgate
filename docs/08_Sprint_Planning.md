@@ -15,3 +15,13 @@ Initialize backend architecture.
 Status
 
 In Progress
+
+## Completed
+
+- Express Server Setup
+- Middleware Configuration
+- Health Check API
+- Route Layer
+- Controller Layer
+- Environment Configuration
+- Global 404 Middleware
