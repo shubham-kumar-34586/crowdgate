@@ -7,22 +7,27 @@ CrowdGate follows a layered architecture.
 ```
 
 Client
-
-↓
-
-Frontend
-
-↓
-
-REST API
-
-↓
-
-Business Logic
-
-↓
-
-Database
+    │
+    ▼
+Frontend (React)
+    │
+    ▼
+Express App
+    │
+    ▼
+Routes
+    │
+    ▼
+Controllers
+    │
+    ▼
+Services (Coming Soon)
+    │
+    ▼
+Repositories (Coming Soon)
+    │
+    ▼
+PostgreSQL
 
 ```
 

@@ -1,7 +1,8 @@
 import app from "./app.js";
+import env from "./config/env.js";
 
-const PORT = 5000;
-
-app.listen(PORT, () => {
-    console.log(`🚀 CrowdGate Server running on port ${PORT}`);
+app.listen(env.PORT, () => {
+    console.log(
+        `🚀 CrowdGate Server running on port ${env.PORT} in ${env.NODE_ENV} mode`
+    );
 });
