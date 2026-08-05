@@ -16,13 +16,13 @@ Returns the current status of the CrowdGate API.
 
 ```json
 {
-  "success": true,
-  "status": "healthy",
-  "message": "CrowdGate API is running",
-  "timestamp": "2026-08-03T10:30:00.000Z"
+    "success": true,
+    "message": "CrowdGate API is running",
+    "data": {
+        "status": "healthy",
+        "timestamp": "2026-08-05T18:30:00.000Z"
+    }
 }
-
-
 
 ---
 

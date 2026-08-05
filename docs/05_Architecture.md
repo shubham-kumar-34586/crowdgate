@@ -24,10 +24,13 @@ Routes
 Controllers
     │
     ▼
-Services (Upcoming)
+Services
     │
     ▼
-Repositories (Upcoming)
+Repositories
+    │
+    ▼
+Connection Pool
     │
     ▼
 PostgreSQL
@@ -51,9 +54,18 @@ Response
 - Node.js
 - Express.js
 
-### Database
+### Database Connection
 
-- PostgreSQL
+- PostgreSQL Connection Pool (`pg`)
+- SSL Enabled
+- Centralized Database Module
+
+
+### Database Layer
+
+- PostgreSQL (Neon Cloud)
+- Connection Pool (`pg`)
+- SQL Migration Files
 
 ### Cache
 

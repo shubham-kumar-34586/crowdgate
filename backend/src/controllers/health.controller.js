@@ -1,11 +1,14 @@
-const getHealth = (req, res) => {
-    res.status(200).json({
-        success: true,
-        status: "healthy",
-        message: "CrowdGate API is running",
-        timestamp: new Date().toISOString()
-    });
-};
+import { sendSuccess } from "../utils/apiResponse.js";
 
+const getHealth = (req, res) => {
+    sendSuccess(
+        res,
+        {
+            status: "healthy",
+            timestamp: new Date().toISOString(),
+        },
+        "CrowdGate API is running"
+    );
+};
 
 export default getHealth;
