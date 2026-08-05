@@ -12,16 +12,25 @@ Initialize backend architecture.
 - Folder Structure
 - Environment Configuration
 
+## Sprint 1 Status
+
+Completed
+
+- Backend folder structure
+- Express application setup
+- Global middleware
+- Health API
+- Route layer
+- Controller layer
+- API response utility
+- Global 404 middleware
+- Global error middleware
+- PostgreSQL cloud connection
+- Connection pooling
+- SQL migration folder
+- Users table
+- Repository layer foundation
+
 Status
 
-In Progress
-
-## Completed
-
-- Express Server Setup
-- Middleware Configuration
-- Health Check API
-- Route Layer
-- Controller Layer
-- Environment Configuration
-- Global 404 Middleware
+Sprint 1 Completed Successfully
