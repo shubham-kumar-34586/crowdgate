@@ -46,3 +46,50 @@ Handles all unknown routes.
   "message": "Route not found"
 }
 ```
+---
+
+---
+
+---
+
+## Register User
+
+### Endpoint
+
+POST /api/v1/auth/register
+
+### Description
+
+Registers a new user account.
+
+### Current Flow
+
+Client
+↓
+Route
+↓
+Controller
+↓
+Service
+↓
+Repository
+↓
+PostgreSQL
+
+### Request Body
+
+```json
+{
+  "full_name": "Shubham Kumar",
+  "email": "shubham@gmail.com",
+  "password": "123456"
+}
+```
+
+### Success Response
+
+HTTP 201 Created
+
+### Status
+
+✅ Implemented (Phase 1)

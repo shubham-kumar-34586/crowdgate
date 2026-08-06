@@ -120,3 +120,26 @@ so that users can purchase tickets.
 
 High
 ---
+
+
+## US-006
+
+### Title
+
+Register Account
+
+### User Story
+
+As a guest,
+
+I want to register an account,
+
+so that I can book tickets and manage my bookings.
+
+### Priority
+
+Critical
+
+### Requirement
+
+FR-001

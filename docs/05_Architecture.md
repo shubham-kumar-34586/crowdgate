@@ -9,7 +9,7 @@ CrowdGate follows a layered architecture.
 Client
     │
     ▼
-Frontend (React)
+React Frontend
     │
     ▼
 Express Application
@@ -30,9 +30,6 @@ Services
 Repositories
     │
     ▼
-Connection Pool
-    │
-    ▼
 PostgreSQL
     │
     ▼
@@ -43,6 +40,37 @@ Response
 ---
 
 ## Components
+### Authentication Module
+
+Authentication follows a layered architecture:
+
+- Routes
+- Controllers
+- Services
+- Repositories
+- PostgreSQL
+
+### Register Flow
+
+Client
+    │
+    ▼
+POST /api/v1/auth/register
+    │
+    ▼
+Auth Route
+    │
+    ▼
+Auth Controller
+    │
+    ▼
+Auth Service
+    │
+    ▼
+User Repository
+    │
+    ▼
+PostgreSQL
 
 ### Frontend
 

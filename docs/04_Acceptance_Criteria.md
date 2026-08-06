@@ -47,3 +47,18 @@ Acceptance Criteria
 - Payment succeeds.
 - Booking is confirmed.
 - QR ticket is generated.
+
+## AC-004
+
+Feature
+
+User Registration
+
+Acceptance Criteria
+ 
+- Full name is required.
+- Email is required.
+- Email must be unique.
+- Password is required.
+- User is stored successfully.
+- Success response is returned.

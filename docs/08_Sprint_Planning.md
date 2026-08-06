@@ -34,3 +34,41 @@ Completed
 Status
 
 Sprint 1 Completed Successfully
+
+
+## Sprint 2 Progress
+
+### Completed
+
+- Authentication module structure
+- Register API endpoint
+- Repository skeleton
+- First repository methods
+- SQL parameterized queries
+- API versioning
+
+### In Progress
+
+- Service Layer
+
+
+# Sprint 2 — Day 1
+
+## Completed
+
+- Authentication module structure
+- Register endpoint
+- Register route
+- Register controller
+- Register service
+- User repository
+- Database insert operation
+- Duplicate email check
+- API response integration
+
+## Pending
+
+- Password hashing
+- Validation
+- JWT Authentication
+- Login API

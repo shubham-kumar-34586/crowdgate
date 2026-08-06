@@ -35,3 +35,49 @@ Sprint 1 progressing successfully.
 - Helmet
 - Morgan
 - CORS
+
+## Sprint 2 - Day 1 Progress
+
+### Completed
+
+- Authentication module initialized
+- Repository methods implemented
+- Service layer implemented
+- Register business flow established
+
+### Current Status
+
+Controller integration in progress.
+
+# Sprint 2 Progress Report
+
+## Date
+
+07 August 2026
+
+## Objective
+
+Implement the first business feature of CrowdGate.
+
+## Work Completed
+
+- Built complete Register API architecture.
+- Connected Route → Controller → Service → Repository → PostgreSQL.
+- Successfully inserted users into Neon PostgreSQL.
+- Implemented duplicate email detection.
+- Standardized API responses.
+
+## Lessons Learned
+
+- Repository Pattern
+- Service Layer responsibilities
+- Parameterized SQL queries
+- PostgreSQL INSERT with RETURNING
+- Layered Backend Architecture
+
+## Next Sprint Tasks
+
+- Password Hashing (bcrypt)
+- Request Validation
+- JWT Authentication
+- Login API
