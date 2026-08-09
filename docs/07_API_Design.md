@@ -93,3 +93,32 @@ HTTP 201 Created
 ### Status
 
 ✅ Implemented (Phase 1)
+
+
+### Implementation Status
+
+- Route: ✅
+- Controller: ✅
+- Service: ✅
+- Repository: ✅
+- PostgreSQL: ✅
+- Password Hashing: 🚧
+- Validation: 🚧
+- Error Handling: 🚧
+
+
+### Request Validation
+
+The registration endpoint validates incoming requests before
+passing them to the controller.
+
+Validation rules:
+
+- Full name is required.
+- Email is required.
+- Email must contain a valid basic format.
+- Password is required.
+- Password must contain at least 8 characters.
+
+Invalid requests return HTTP 400 and do not reach the service
+or repository layers.

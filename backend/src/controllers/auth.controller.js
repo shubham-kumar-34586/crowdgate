@@ -5,9 +5,11 @@ const register = async (req, res, next) => {
     try {
         const newUser = await authService.register(req.body);
 
+        const { password_hash, ...safeUser } = newUser;
+
         sendSuccess(
             res,
-            newUser,
+            safeUser,
             "User registered successfully",
             201
         );
@@ -16,11 +18,24 @@ const register = async (req, res, next) => {
         next(error);
     }
 };
+const login = async (req, res, next) => {
+    try {
+        const result = await authService.login(req.body);
 
+        sendSuccess(
+            res,
+            result,
+            "Login successful",
+            200
+        );
+    } catch (error) {
+        next(error);
+    }
+};
 export default {
     register,
+    login
 };
-
 
 
 // // Remember
