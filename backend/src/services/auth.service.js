@@ -70,7 +70,17 @@ class AuthService {
         token
     };
 }
+    async getCurrentUser(userId) {
+    const user = await userRepository.findById(userId);
 
+    if (!user) {
+        const error = new Error("User not found");
+        error.status = 404;
+        throw error;
+    }
+
+    return user;
+}
 }
 
 

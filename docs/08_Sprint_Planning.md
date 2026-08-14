@@ -36,25 +36,56 @@ Status
 Sprint 1 Completed Successfully
 
 
+# Sprint 2
+
+## Goal
+
+Implement a production-oriented authentication system using
+layered architecture, secure password handling, JWT-based
+authentication, validation, and protected APIs.
+
+---
+
 ## Sprint 2 Progress
 
 ### Completed
 
 - Authentication module structure
 - Register API endpoint
-- Repository skeleton
-- First repository methods
-- SQL parameterized queries
+- Register route
+- Register controller
+- Register service
+- User repository
+- PostgreSQL integration
+- Parameterized SQL queries
+- Duplicate email detection
+- Duplicate email error handling
+- API response integration
+- Password hashing using bcrypt
+- Password hash removed from API response
+- Registration request validation
+- Login API
+- Login request validation
+- Password verification using bcrypt
+- Invalid credential handling
+- JWT generation
+- JWT secret configuration
+- JWT authentication middleware
+- Protected `/me` endpoint
+- Current user lookup from PostgreSQL
+- Authentication API testing
 - API versioning
 
-### In Progress
+---
 
-- Service Layer
+## Sprint 2 — Day 1
 
+### Objective
 
-# Sprint 2 — Day 1
+Build the initial registration flow using the layered backend
+architecture.
 
-## Completed
+### Completed
 
 - Authentication module structure
 - Register endpoint
@@ -66,12 +97,7 @@ Sprint 1 Completed Successfully
 - Duplicate email check
 - API response integration
 
-## Pending
-
-- Password hashing
-- Validation
-- JWT Authentication
-- Login API
+---
 
 ## Sprint 2 — Day 2
 
@@ -79,21 +105,80 @@ Sprint 1 Completed Successfully
 
 Make the User Registration API production-safe.
 
-### Planned Work
+### Completed
 
-- Password hashing using bcrypt
-- Remove password_hash from API response
+- Password hashing with bcrypt
+- Password hash removed from API response
 - Request validation
 - Duplicate email error handling
 - Registration edge-case testing
 
-### Target
+---
 
-Sprint 2 progress: 50%
+## Sprint 2 — Day 3
 
-### Day 2 Progress
+### Objective
 
-- Password hashing with bcrypt ✅
-- Password removed from API response ✅
-- Registration request validation 🚧
+Implement user login and JWT-based authentication.
 
+### Completed
+
+- Login route
+- Login controller
+- Login service
+- Login validation
+- Password verification using bcrypt
+- Invalid credential handling
+- JWT generation
+- JWT environment configuration
+- JWT authentication middleware
+
+---
+
+## Sprint 2 — Day 4
+
+### Objective
+
+Use JWT authentication to protect an authenticated
+user endpoint.
+
+### Completed
+
+- Protected `/api/v1/auth/me` endpoint
+- JWT middleware integration
+- Bearer token validation
+- Invalid token handling
+- Expired token handling
+- Current user identification using JWT
+- Current user lookup through repository
+- PostgreSQL as source of truth for current user data
+- `/me` endpoint testing
+
+---
+
+## Sprint 2 Current Status
+
+Approximately **60% complete**.
+
+### Authentication Flow Completed
+
+```text
+REGISTER
+   ↓
+Validation
+   ↓
+Password Hashing
+   ↓
+PostgreSQL
+   ↓
+LOGIN
+   ↓
+Password Verification
+   ↓
+JWT Generation
+   ↓
+JWT Middleware
+   ↓
+Protected /me
+   ↓
+Current User from PostgreSQL

@@ -42,6 +42,24 @@ class UserRepository {
     throw error;
   }
 }
+    async findById(id) {
+    const query = `
+        SELECT
+            id,
+            full_name,
+            email,
+            role,
+            is_verified,
+            created_at,
+            updated_at
+        FROM users
+        WHERE id = $1
+    `;
+
+    const result = await pool.query(query, [id]);
+
+    return result.rows[0];
+}
 
 }
 

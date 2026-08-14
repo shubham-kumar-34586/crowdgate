@@ -1,6 +1,8 @@
 import express from "express";
 import authController from "../controllers/auth.controller.js";
 import authValidator from "../validators/auth.validator.js";
+import authenticate from "../middlewares/auth.middleware.js";
+
 
 const router = express.Router();
 
@@ -15,5 +17,9 @@ router.post(
     authValidator.validateLogin,
     authController.login
 );
-
+router.get(
+    "/me",
+    authenticate,
+    authController.getMe
+);
 export default router;

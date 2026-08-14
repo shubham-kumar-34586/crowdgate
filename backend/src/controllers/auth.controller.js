@@ -32,9 +32,24 @@ const login = async (req, res, next) => {
         next(error);
     }
 };
+const getMe = async (req, res, next) => {
+    try {
+        const user = await authService.getCurrentUser(req.user.userId);
+
+        sendSuccess(
+            res,
+            user,
+            "Current user fetched successfully",
+            200
+        );
+    } catch (error) {
+        next(error);
+    }
+};
 export default {
     register,
-    login
+    login,
+    getMe,
 };
 
 
