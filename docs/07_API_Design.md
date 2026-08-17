@@ -1,3 +1,11 @@
+Yes. We should update both documents **to reflect the work actually completed today**: refresh-token storage, refresh endpoint, token rotation, logout/revocation, and testing. We should also remove the old “planned” status for refresh/logout.
+
+Below are the **two complete copy-paste files**. 
+
+---
+
+# `docs/07_API_Design.md`
+
 ````markdown
 # CrowdGate API Design
 
@@ -97,19 +105,37 @@ PostgreSQL
 Response
 ```
 
+### Refresh Token Operations
+
+```text
+HTTP Request
+     ↓
+Route
+     ↓
+Controller
+     ↓
+Auth Service
+     ↓
+Refresh Token Repository
+     ↓
+PostgreSQL
+     ↓
+Response
+```
+
 ---
 
-## Register User
+# Register User
 
-### Endpoint
+## Endpoint
 
 POST /api/v1/auth/register
 
-### Description
+## Description
 
 Registers a new user account.
 
-### Request Flow
+## Request Flow
 
 ```text
 Client
@@ -133,7 +159,7 @@ PostgreSQL
 Return Safe User
 ```
 
-### Request Body
+## Request Body
 
 ```json
 {
@@ -143,7 +169,7 @@ Return Safe User
 }
 ```
 
-### Success Response
+## Success Response
 
 HTTP 201 Created
 
@@ -163,11 +189,11 @@ HTTP 201 Created
 }
 ```
 
-### Status
+## Status
 
 ✅ Implemented
 
-### Implementation Status
+## Implementation Status
 
 * Route: ✅
 * Controller: ✅
@@ -183,12 +209,12 @@ HTTP 201 Created
 
 ---
 
-## Registration Validation
+# Registration Validation
 
 The registration endpoint validates incoming requests before
 passing them to the controller.
 
-### Validation Rules
+## Validation Rules
 
 * Full name is required.
 * Email is required.
@@ -199,7 +225,7 @@ passing them to the controller.
 Invalid requests return HTTP 400 and do not reach the service
 or repository layers.
 
-### Missing Fields
+## Missing Fields
 
 HTTP 400 Bad Request
 
@@ -210,7 +236,7 @@ HTTP 400 Bad Request
 }
 ```
 
-### Invalid Email
+## Invalid Email
 
 HTTP 400 Bad Request
 
@@ -221,7 +247,7 @@ HTTP 400 Bad Request
 }
 ```
 
-### Short Password
+## Short Password
 
 HTTP 400 Bad Request
 
@@ -234,7 +260,7 @@ HTTP 400 Bad Request
 
 ---
 
-## Password Hashing
+# Password Hashing
 
 CrowdGate never stores plain-text passwords in PostgreSQL.
 
@@ -254,13 +280,13 @@ The current bcrypt configuration uses a cost factor of 12.
 
 The password hash is never returned to the client.
 
-### Status
+## Status
 
 ✅ Implemented
 
 ---
 
-## Duplicate Email Handling
+# Duplicate Email Handling
 
 Before creating a new user, the service checks whether the email
 already exists.
@@ -274,11 +300,11 @@ User exists?
     ↙       ↘
   YES        NO
    ↓          ↓
-409        Continue
+ 409       Continue
 Conflict
 ```
 
-### Response
+## Response
 
 HTTP 409 Conflict
 
@@ -289,23 +315,25 @@ HTTP 409 Conflict
 }
 ```
 
-### Status
+## Status
 
 ✅ Implemented
 
 ---
 
-## User Repository
+# User Repository
 
 The repository layer handles direct database operations.
 
 Current repository methods:
 
-* `findByEmail()`
-* `create()`
-* `findById()`
+```text
+findByEmail()
+create()
+findById()
+```
 
-### Find User By Email
+## Find User By Email
 
 ```sql
 SELECT *
@@ -324,7 +352,7 @@ directly inserted into SQL queries.
 
 ---
 
-## Create User
+# Create User
 
 The repository inserts a new user into PostgreSQL.
 
@@ -361,7 +389,7 @@ Newly registered users currently receive:
 role = user
 ```
 
-### Status
+## Status
 
 ✅ Implemented
 
@@ -375,9 +403,10 @@ POST /api/v1/auth/login
 
 ## Description
 
-Authenticates an existing user and generates a JWT access token.
+Authenticates an existing user and generates an access token
+and refresh token.
 
-### Request Body
+## Request Body
 
 ```json
 {
@@ -386,7 +415,7 @@ Authenticates an existing user and generates a JWT access token.
 }
 ```
 
-### Request Flow
+## Request Flow
 
 ```text
 Client
@@ -403,12 +432,18 @@ Find User By Email
   ↓
 Compare Password Using bcrypt
   ↓
-Generate JWT
+Generate Access Token
   ↓
-Return Safe User + Token
+Generate Refresh Token
+  ↓
+Hash Refresh Token
+  ↓
+Store Refresh Token
+  ↓
+Return Safe User + Tokens
 ```
 
-### Success Response
+## Success Response
 
 HTTP 200 OK
 
@@ -424,20 +459,21 @@ HTTP 200 OK
       "role": "user",
       "is_verified": false
     },
-    "token": "JWT_TOKEN"
+    "accessToken": "JWT_ACCESS_TOKEN",
+    "refreshToken": "REFRESH_TOKEN"
   }
 }
 ```
 
 The password hash is never returned to the client.
 
-### Status
+## Status
 
 ✅ Implemented
 
 ---
 
-## Password Verification
+# Password Verification
 
 During login, the supplied password is compared with the stored
 bcrypt password hash.
@@ -453,21 +489,21 @@ Match?
    ↙     ↘
  YES      NO
   ↓        ↓
-Continue  401
+Continue   401
 ```
 
-### Status
+## Status
 
 ✅ Implemented
 
 ---
 
-## Invalid Login Credentials
+# Invalid Login Credentials
 
 If the email does not exist or the password is incorrect, the API
 returns the same generic error.
 
-### HTTP 401 Unauthorized
+## HTTP 401 Unauthorized
 
 ```json
 {
@@ -479,7 +515,7 @@ returns the same generic error.
 This prevents unnecessarily revealing whether a particular email
 exists.
 
-### Status
+## Status
 
 ✅ Implemented
 
@@ -490,9 +526,9 @@ exists.
 CrowdGate uses JSON Web Tokens (JWT) to authenticate protected
 API requests.
 
-After successful login, the server generates a JWT.
+After successful login, the server generates a JWT access token.
 
-### JWT Payload
+## JWT Payload
 
 ```json
 {
@@ -504,7 +540,7 @@ After successful login, the server generates a JWT.
 
 ---
 
-## JWT Configuration
+# JWT Configuration
 
 The JWT secret is stored in environment variables.
 
@@ -521,7 +557,7 @@ The application accesses the secret through:
 process.env.JWT_SECRET
 ```
 
-### Status
+## Status
 
 ✅ Implemented
 
@@ -531,7 +567,7 @@ process.env.JWT_SECRET
 
 The authentication middleware protects private endpoints.
 
-### Middleware Flow
+## Middleware Flow
 
 ```text
 HTTP Request
@@ -553,7 +589,7 @@ next()
 
 ---
 
-## Authorization Header
+# Authorization Header
 
 Protected requests must send:
 
@@ -563,7 +599,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-## Missing JWT
+# Missing JWT
 
 If a protected endpoint is requested without an Authorization
 header:
@@ -577,13 +613,13 @@ HTTP 401 Unauthorized
 }
 ```
 
-### Status
+## Status
 
 ✅ Implemented
 
 ---
 
-## Invalid or Expired JWT
+# Invalid or Expired JWT
 
 If the token is invalid, malformed, expired, or fails JWT
 verification:
@@ -597,7 +633,7 @@ HTTP 401 Unauthorized
 }
 ```
 
-### Status
+## Status
 
 ✅ Implemented
 
@@ -614,8 +650,6 @@ GET /api/v1/auth/me
 Returns the currently authenticated user's current information.
 
 This endpoint is protected by JWT authentication middleware.
-
----
 
 ## /me Request Flow
 
@@ -641,8 +675,6 @@ PostgreSQL
 Return Current User
 ```
 
----
-
 ## Why /me Queries PostgreSQL
 
 The JWT identifies the user, but PostgreSQL remains the source
@@ -663,8 +695,6 @@ Latest User Record
 
 This prevents stale user information from being returned when
 user data changes after a token was issued.
-
----
 
 ## /me Authentication
 
@@ -696,8 +726,6 @@ HTTP 401 Unauthorized
 }
 ```
 
----
-
 ## /me Success Response
 
 HTTP 200 OK
@@ -720,24 +748,460 @@ HTTP 200 OK
 
 The password hash is never returned.
 
-### Status
+## Status
 
 ✅ Implemented
 
 ---
 
+# Access Token
+
+## Purpose
+
+The access token authenticates requests to protected APIs.
+
+## Usage
+
+```http
+Authorization: Bearer <access_token>
+```
+
+## Characteristics
+
+* Short-lived
+* JWT based
+* Contains user identity and role
+* Verified using JWT authentication middleware
+* Used for protected API requests
+
+---
+
+# Refresh Token
+
+## Purpose
+
+The refresh token allows the client to obtain a new access token
+without requiring the user to log in again.
+
+## Characteristics
+
+* Long-lived
+* Stored securely by the client
+* Stored in hashed form in PostgreSQL
+* Associated with a specific user
+* Can expire
+* Can be revoked
+* Rotated when used successfully
+
+---
+
+# Refresh Token Database
+
+## Table
+
+```text
+refresh_tokens
+```
+
+## Columns
+
+| Column     | Description                            |
+| ---------- | -------------------------------------- |
+| id         | Unique refresh-token record identifier |
+| user_id    | User who owns the refresh token        |
+| token_hash | Hashed refresh token                   |
+| expires_at | Refresh token expiration time          |
+| created_at | Token creation timestamp               |
+| revoked_at | Token revocation timestamp             |
+
+## Database Relationship
+
+```text
+users
+  │
+  │ 1
+  │
+  └───────< refresh_tokens
+```
+
+A user can have multiple refresh tokens.
+
+The `user_id` column references `users.id`.
+
+If a user is deleted, their refresh-token records are
+automatically deleted using `ON DELETE CASCADE`.
+
+---
+
+# Refresh Token Security
+
+CrowdGate does not store the raw refresh token in PostgreSQL.
+
+The refresh token is hashed before being stored.
+
+```text
+Raw Refresh Token
+        ↓
+       Hash
+        ↓
+   token_hash
+        ↓
+   PostgreSQL
+```
+
+This reduces the risk of exposing usable refresh tokens if
+the database is compromised.
+
+---
+
+# Refresh Token Repository
+
+The repository layer handles refresh-token database operations.
+
+Current repository methods:
+
+```text
+create()
+findByTokenHash()
+revokeById()
+```
+
+## Create Refresh Token
+
+Creates a refresh-token record in PostgreSQL.
+
+```sql
+INSERT INTO refresh_tokens (
+    user_id,
+    token_hash,
+    expires_at
+)
+VALUES ($1, $2, $3)
+RETURNING *;
+```
+
+## Find Valid Refresh Token
+
+A refresh token is considered valid only when:
+
+* The token exists.
+* The token has not been revoked.
+* The token has not expired.
+
+Conceptually:
+
+```sql
+SELECT *
+FROM refresh_tokens
+WHERE token_hash = $1
+AND revoked_at IS NULL
+AND expires_at > CURRENT_TIMESTAMP;
+```
+
+## Revoke Refresh Token
+
+Logout or token rotation can revoke a refresh-token record.
+
+```sql
+UPDATE refresh_tokens
+SET revoked_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING *;
+```
+
+## Status
+
+✅ Implemented
+
+---
+
+# Refresh Access Token
+
+## Endpoint
+
+POST /api/v1/auth/refresh
+
+## Description
+
+Generates a new access token using a valid refresh token.
+
+The refresh-token system uses token rotation.
+
+## Request Body
+
+```json
+{
+  "refreshToken": "REFRESH_TOKEN"
+}
+```
+
+## Request Flow
+
+```text
+Client
+  ↓
+POST /api/v1/auth/refresh
+  ↓
+Refresh Token
+  ↓
+Auth Controller
+  ↓
+Auth Service
+  ↓
+Hash Refresh Token
+  ↓
+Find Token
+  ↓
+Check Expiration
+  ↓
+Check Revocation
+  ↓
+Find User
+  ↓
+Revoke Current Refresh Token
+  ↓
+Generate New Access Token
+  ↓
+Generate New Refresh Token
+  ↓
+Store New Refresh Token
+  ↓
+Return New Tokens
+```
+
+## Success Response
+
+HTTP 200 OK
+
+```json
+{
+  "success": true,
+  "message": "Access token refreshed successfully",
+  "data": {
+    "accessToken": "NEW_JWT_ACCESS_TOKEN",
+    "refreshToken": "NEW_REFRESH_TOKEN"
+  }
+}
+```
+
+## Security Checks
+
+The refresh token must:
+
+* Exist in the database.
+* Belong to a valid user.
+* Not be expired.
+* Not be revoked.
+
+## Invalid Refresh Token
+
+HTTP 401 Unauthorized
+
+```json
+{
+  "success": false,
+  "message": "Invalid or expired refresh token"
+}
+```
+
+## Token Rotation
+
+After a successful refresh:
+
+```text
+Old Refresh Token
+       ↓
+    Revoked
+       ↓
+New Refresh Token
+       ↓
+Stored in PostgreSQL
+```
+
+The old refresh token cannot be reused.
+
+## Status
+
+✅ Implemented
+
+---
+
+# Logout
+
+## Endpoint
+
+POST /api/v1/auth/logout
+
+## Description
+
+Invalidates the current refresh token.
+
+## Request Body
+
+```json
+{
+  "refreshToken": "REFRESH_TOKEN"
+}
+```
+
+## Request Flow
+
+```text
+Client
+  ↓
+POST /api/v1/auth/logout
+  ↓
+Refresh Token
+  ↓
+Auth Controller
+  ↓
+Auth Service
+  ↓
+Find Refresh Token
+  ↓
+Revoke Refresh Token
+  ↓
+PostgreSQL
+  ↓
+Logout Successful
+```
+
+## Success Response
+
+HTTP 200 OK
+
+```json
+{
+  "success": true,
+  "message": "Logout successful",
+  "data": null
+}
+```
+
+The refresh token is not deleted immediately.
+
+Instead, `revoked_at` is populated so the token becomes invalid.
+
+## Reuse After Logout
+
+Attempting to use the revoked refresh token again returns:
+
+HTTP 401 Unauthorized
+
+```json
+{
+  "success": false,
+  "message": "Invalid or expired refresh token"
+}
+```
+
+## Status
+
+✅ Implemented
+
+---
+
+# Complete Authentication Flow
+
+```text
+                         LOGIN
+                           ↓
+                  Verify Credentials
+                           ↓
+              ┌────────────┴────────────┐
+              ↓                         ↓
+        Access Token              Refresh Token
+        Short-lived                Long-lived
+              ↓                         ↓
+       Protected APIs              Hash + Store
+              ↓                         ↓
+           Expires                PostgreSQL
+                                        ↓
+                                  /refresh
+                                        ↓
+                               Rotate Token
+                                        ↓
+                              New Access Token
+                                        ↓
+                                Protected API
+```
+
+---
+
+# Logout Flow
+
+```text
+Client
+  ↓
+Refresh Token
+  ↓
+/logout
+  ↓
+Find Refresh Token
+  ↓
+Set revoked_at
+  ↓
+PostgreSQL
+  ↓
+Token becomes invalid
+```
+
+---
+
+# Authentication Architecture
+
+```text
+                        Client
+                          │
+                          ↓
+                        Route
+                          │
+            ┌─────────────┴─────────────┐
+            ↓                           ↓
+      Validation                 JWT Middleware
+            │                           │
+            └─────────────┬─────────────┘
+                          ↓
+                     Controller
+                          ↓
+                       Service
+                          ↓
+                    Repository
+                          ↓
+                     PostgreSQL
+```
+
+For refresh-token operations:
+
+```text
+Client
+  ↓
+Route
+  ↓
+Controller
+  ↓
+Auth Service
+  ↓
+Refresh Token Repository
+  ↓
+PostgreSQL
+```
+
+---
+
 # Authentication Error Responses
 
-| Situation                   | HTTP Status | Message                                    |
-| --------------------------- | ----------: | ------------------------------------------ |
-| Missing registration fields |         400 | Full name, email and password are required |
-| Invalid email               |         400 | Invalid email address                      |
-| Password too short          |         400 | Password must be at least 8 characters     |
-| Missing login credentials   |         400 | Email and password are required            |
-| Invalid credentials         |         401 | Invalid email or password                  |
-| Missing JWT                 |         401 | Authentication required                    |
-| Invalid / expired JWT       |         401 | Invalid or expired token                   |
-| Duplicate email             |         409 | Email already registered                   |
+| Situation                       | HTTP Status | Message                                    |
+| ------------------------------- | ----------: | ------------------------------------------ |
+| Missing registration fields     |         400 | Full name, email and password are required |
+| Invalid email                   |         400 | Invalid email address                      |
+| Password too short              |         400 | Password must be at least 8 characters     |
+| Missing login credentials       |         400 | Email and password are required            |
+| Invalid credentials             |         401 | Invalid email or password                  |
+| Missing JWT                     |         401 | Authentication required                    |
+| Invalid / expired JWT           |         401 | Invalid or expired token                   |
+| Invalid / expired refresh token |         401 | Invalid or expired refresh token           |
+| Duplicate email                 |         409 | Email already registered                   |
 
 ---
 
@@ -781,38 +1245,28 @@ Authentication APIs have been tested using an API client.
 
 ---
 
-# Current Authentication Architecture
+## Refresh Token Tests
 
-```text
-                    ┌─────────────────┐
-                    │     Client      │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │      Route      │
-                    └────────┬────────┘
-                             ↓
-                  ┌──────────────────────┐
-                  │ Validation / JWT     │
-                  │ Middleware           │
-                  └──────────┬───────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │   Controller    │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │     Service     │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │   Repository    │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │   PostgreSQL    │
-                    └─────────────────┘
-```
+| Test Case                         | Expected Result    | Status |
+| --------------------------------- | ------------------ | ------ |
+| Login creates refresh token       | 200 OK             | ✅      |
+| Refresh with valid token          | 200 OK             | ✅      |
+| Refresh returns new access token  | New token returned | ✅      |
+| Refresh returns new refresh token | New token returned | ✅      |
+| Old refresh token after rotation  | 401 Unauthorized   | ✅      |
+| Invalid refresh token             | 401 Unauthorized   | ✅      |
+| Expired refresh token             | 401 Unauthorized   | ✅      |
+| Revoked refresh token             | 401 Unauthorized   | ✅      |
+
+---
+
+## Logout Tests
+
+| Test Case                          | Expected Result  | Status |
+| ---------------------------------- | ---------------- | ------ |
+| Logout with valid refresh token    | 200 OK           | ✅      |
+| `revoked_at` updated in PostgreSQL | Timestamp stored | ✅      |
+| Reuse revoked refresh token        | 401 Unauthorized | ✅      |
 
 ---
 
@@ -832,6 +1286,8 @@ Current authentication routes:
 POST /api/v1/auth/register
 POST /api/v1/auth/login
 GET  /api/v1/auth/me
+POST /api/v1/auth/refresh
+POST /api/v1/auth/logout
 ```
 
 ---
@@ -871,7 +1327,11 @@ Current responsibilities include:
 * Checking duplicate email
 * Hashing passwords
 * Comparing passwords
-* Generating JWT
+* Generating access tokens
+* Generating refresh tokens
+* Validating refresh tokens
+* Rotating refresh tokens
+* Revoking refresh tokens
 * Fetching current user
 * Deciding authentication outcomes
 
@@ -881,6 +1341,8 @@ Current responsibilities include:
 
 Responsible for database access.
 
+### User Repository
+
 Current methods:
 
 ```text
@@ -889,7 +1351,17 @@ create()
 findById()
 ```
 
-The repository communicates directly with PostgreSQL.
+### Refresh Token Repository
+
+Current methods:
+
+```text
+create()
+findByTokenHash()
+revokeById()
+```
+
+The repositories communicate directly with PostgreSQL.
 
 ---
 
@@ -899,6 +1371,21 @@ CrowdGate uses PostgreSQL as the persistent data store.
 
 The database layer uses a connection pool to efficiently manage
 database connections.
+
+Current authentication tables:
+
+```text
+users
+refresh_tokens
+```
+
+The `refresh_tokens.user_id` column references `users.id`.
+
+The relationship uses:
+
+```sql
+ON DELETE CASCADE
+```
 
 ---
 
@@ -914,6 +1401,11 @@ CrowdGate currently follows these security practices:
 * Invalid login attempts use a generic authentication message.
 * Database queries use parameterized SQL.
 * User data is accessed through the repository layer.
+* Refresh tokens are stored in hashed form.
+* Refresh tokens can expire.
+* Refresh tokens can be revoked.
+* Refresh tokens are rotated after successful refresh.
+* Revoked refresh tokens cannot be reused.
 * Authentication logic is separated from HTTP handling.
 * Validation occurs before business logic execution.
 * Sensitive environment variables are not committed to Git.
@@ -928,6 +1420,8 @@ CrowdGate currently follows these security practices:
 | `/api/v1/auth/register` | POST   | ✅ Implemented |
 | `/api/v1/auth/login`    | POST   | ✅ Implemented |
 | `/api/v1/auth/me`       | GET    | ✅ Implemented |
+| `/api/v1/auth/refresh`  | POST   | ✅ Implemented |
+| `/api/v1/auth/logout`   | POST   | ✅ Implemented |
 
 ---
 
@@ -935,37 +1429,6 @@ CrowdGate currently follows these security practices:
 
 The following functionality is planned but has not yet been
 implemented.
-
-## Refresh Token System
-
-Planned flow:
-
-```text
-Access Token
-     ↓
-Expires
-     ↓
-Refresh Token
-     ↓
-Generate New Access Token
-```
-
-Status:
-
-⏳ Planned
-
----
-
-## Logout
-
-A logout and token invalidation strategy will be designed after
-the refresh-token architecture is implemented.
-
-Status:
-
-⏳ Planned
-
----
 
 ## Role-Based Authorization
 
@@ -992,6 +1455,28 @@ Status:
 
 ---
 
+## Additional Protected APIs
+
+Future application modules will use the JWT authentication
+middleware to protect private resources.
+
+Status:
+
+⏳ Planned
+
+---
+
+## Integration Test Suite
+
+A dedicated automated integration-test suite for authentication
+will be added in a future phase.
+
+Status:
+
+⏳ Planned
+
+---
+
 # Authentication Roadmap
 
 ```text
@@ -1009,13 +1494,17 @@ JWT Middleware
      ↓
 Protected /me
      ↓
-Refresh Tokens       ⏳
+Refresh Tokens
      ↓
-Logout Strategy      ⏳
+Token Rotation
      ↓
-Role Authorization   ⏳
+Logout / Token Revocation
      ↓
-Integration Tests    ⏳
+Role Authorization       ⏳
+     ↓
+Additional Protected APIs ⏳
+     ↓
+Integration Tests         ⏳
 ```
 
 ---
@@ -1038,55 +1527,25 @@ Integration Tests    ⏳
 * [x] Safe user responses
 * [x] Authentication error handling
 * [x] Authentication API testing
+* [x] Refresh token database table
+* [x] Refresh token repository
+* [x] Refresh token generation
+* [x] Refresh token hashing
+* [x] Refresh token validation
+* [x] Refresh token expiration check
+* [x] Refresh token revocation check
+* [x] Refresh token rotation
+* [x] Protected refresh-token lifecycle
+* [x] Refresh API
+* [x] Logout API
+* [x] Logout token revocation
+* [x] Revoked token reuse protection
 
 ## Pending
 
-* [ ] Refresh token system
-* [ ] Logout / token invalidation strategy
 * [ ] Role-based authorization
 * [ ] Additional protected APIs
-* [ ] Integration test suite
+* [ ] Automated integration test suite
 * [ ] Final Sprint 2 review
 
 ---
-
-# Current Sprint Position
-
-CrowdGate has completed the core authentication foundation.
-
-Current flow:
-
-```text
-REGISTER
-   ↓
-VALIDATE
-   ↓
-HASH PASSWORD
-   ↓
-STORE USER
-   ↓
-LOGIN
-   ↓
-VERIFY PASSWORD
-   ↓
-GENERATE JWT
-   ↓
-AUTHENTICATE REQUEST
-   ↓
-PROTECTED /ME
-   ↓
-FETCH CURRENT USER
-```
-
-The authentication foundation is ready for the next phase:
-
-* Refresh tokens
-* Logout strategy
-* Role-based authorization
-* Additional protected APIs
-* Integration testing
-
----
-
-```
-```
